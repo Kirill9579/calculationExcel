@@ -3,9 +3,14 @@ package com.example.calculation.utils;
 import com.example.calculation.dto.DirectoryDto;
 import com.example.calculation.dto.ExcelGeneratorDto;
 import com.example.calculation.dto.ResultCalcDto;
+import io.vavr.control.Try;
 import javafx.scene.control.Alert;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,19 +28,23 @@ public class ExcelGenerator {
     public static void run(ExcelGeneratorDto dto) {
         checkParams(dto);
         List<DirectoryDto> dtoList = readFile(dto);
-        List<ResultCalcDto> result = Calculation.calculate(dtoList);
+        Calculation calculation = new Calculation(dto);
+        List<ResultCalcDto> result = calculation.calculate(dtoList);
 
         File file = new File(dto.getOutputFile(), "Result.xlsx");
 
         try (var workbook = new XSSFWorkbook(); var fos = new FileOutputStream(file)) {
-            Sheet sheet = workbook.createSheet("result");
+            Sheet sheet = workbook.createSheet("Result");
+            createHeader(sheet);
             int rowCount = 1;
             for (ResultCalcDto calcDto : result) {
                 Row row = sheet.createRow(rowCount);
 
                 createCell(row, 0).setCellValue(calcDto.getCompany());
                 createCell(row, 1).setCellValue(calcDto.getJob());
-                createCell(row, 2).setCellValue(calcDto.getRange());
+                createCell(row, 2).setCellValue(calcDto.getIqr());
+                createCell(row, 3).setCellValue(calcDto.getAverage());
+                createCell(row, 4).setCellValue(calcDto.getSize());
 
                 rowCount++;
             }
@@ -45,6 +54,16 @@ public class ExcelGenerator {
         }
 
     }
+
+    private static void createHeader(Sheet sheet) {
+        Row row = sheet.createRow(0);
+        createCell(row, 0).setCellValue("Организация");
+        createCell(row, 1).setCellValue("Работа");
+        createCell(row, 2).setCellValue("IQR");
+        createCell(row, 3).setCellValue("Норма");
+        createCell(row, 4).setCellValue("Количество значений в диапазоне");
+    }
+
     public static Cell createCell(Row row, int cellIndex) {
         Cell cell = row.createCell(cellIndex);
         return cell;
@@ -60,16 +79,32 @@ public class ExcelGenerator {
             Sheet sheet = workbook.getSheet(dto.getSheetName());
             for (Row row : sheet) {
                 if (row.getRowNum() == 0) continue;
-                String companyName = row.getCell(companyColumn).getStringCellValue();
-                String jobsName = row.getCell(jobsColumn).getStringCellValue();
-                double value = Double.parseDouble(row.getCell(valueColumn).toString());
+                String companyName = Try.of(() -> row.getCell(companyColumn).toString().trim()).getOrElse("");
+                String jobsName = Try.of(() -> row.getCell(jobsColumn).toString().trim()).getOrElse("");
+                Double value = Try.of(() ->parseCell(row.getCell(valueColumn), workbook)).getOrElse(Double.NaN);
 
                 dtoList.add(new DirectoryDto(companyName, jobsName, value));
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return dtoList;
+    }
+
+    private static double parseCell(Cell cell, Workbook workbook) {
+        double value = 0;
+        if (cell.getCellType() == CellType.FORMULA) {
+            String formula = cell.getCellFormula();
+            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            CellValue cellValue = evaluator.evaluate(cell);
+            if (cellValue.getCellType() == CellType.NUMERIC) {
+                value = cellValue.getNumberValue();
+            } else value = 0;
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            value = Double.parseDouble(cell.toString());
+        }
+        return value;
     }
 
     private static Workbook getWorkbook(File inputFile) throws Exception {

@@ -3,12 +3,37 @@ package com.example.calculation.dto;
 public class ResultCalcDto {
     private String company;
     private String job;
-    private Double range;
+    private double average;
+    private int size;
+    private double iqr;
 
-    public ResultCalcDto(String company, String job, Double range) {
+    public ResultCalcDto(String company, String job) {
         this.company = company;
         this.job = job;
-        this.range = range;
+    }
+
+    public double getAverage() {
+        return average;
+    }
+
+    public void setAverage(double average) {
+        this.average = average;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public double getIqr() {
+        return iqr;
+    }
+
+    public void setIqr(double iqr) {
+        this.iqr = iqr;
     }
 
     public String getCompany() {
@@ -27,20 +52,4 @@ public class ResultCalcDto {
         this.job = job;
     }
 
-    public Double getRange() {
-        return range;
-    }
-
-    public void setRange(Double range) {
-        this.range = range;
-    }
-
-    @Override
-    public String toString() {
-        return "ResultCalcDto{" +
-                "company='" + company + '\'' +
-                ", job='" + job + '\'' +
-                ", range=" + range +
-                '}' + "\n";
-    }
 }
