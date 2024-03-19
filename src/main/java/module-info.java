@@ -10,6 +10,5 @@ module com.example.calculation {
     requires commons.math3;
     requires vavr;
 
-    opens com.example.calculation to javafx.fxml;
-    exports com.example.calculation;
+    opens com.example.calculation;
 }
