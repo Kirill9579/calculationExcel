@@ -21,8 +21,8 @@ public class ViewBuilder {
     private final Label inputField = buildLabel("Выбери файл Сводки...", 10, 20);
     private final Label outputField = buildLabel("Укажите папку для результата...", 10 , 50);
     private final TextField sheetName = buildTextField("Сводки (люди чел.час)", 255 , 80);
-    private final TextField rangePercent = buildTextField("70", 255 , 110);
-    private final TextField stepPercent = buildTextField("75", 255 , 140);
+    private final TextField rangePercent = buildTextField("75", 255 , 110);
+    private final TextField stepPercent = buildTextField("70", 255 , 140);
     private final TextField company = buildTextField("E", 255 , 170);
     private final TextField jobs = buildTextField("K", 255 , 200);
     private final TextField value = buildTextField("R", 255 , 230);

@@ -29,12 +29,10 @@ public class Calculation {
 
         List<ResultCalcDto> result = new ArrayList<>();
         for (Map.Entry<String, Map<String, List<Double>>> entry : collect.entrySet()) {
-            for (Map<String, List<Double>> map : collect.values()) {
-                for (Map.Entry<String, List<Double>> listEntry : map.entrySet()) {
-                    ResultCalcDto calcDto = new ResultCalcDto(entry.getKey(), listEntry.getKey());
-                    calc(listEntry.getValue(), calcDto);
-                    result.add(calcDto);
-                }
+            for (Map.Entry<String, List<Double>> listEntry : entry.getValue().entrySet()) {
+                ResultCalcDto calcDto = new ResultCalcDto(entry.getKey(), listEntry.getKey());
+                calc(listEntry.getValue(), calcDto);
+                result.add(calcDto);
             }
         }
         return result;
@@ -49,21 +47,29 @@ public class Calculation {
 
         double q1 = stat.getPercentile(25);
         double q3 = stat.getPercentile(75);
+        double iqr = q3 - q1;
+        System.out.println("job = " + dto.getJob() + " IQR = " + iqr);
 
         DescriptiveStatistics statistics = new DescriptiveStatistics();
-        List<Double> collect = values.stream().filter(val -> val >= q1 && val <= q3)
+        var lowerBound = q1 - (1.5 * iqr);
+        System.out.println("job = " + dto.getJob() + " lowerBound = " + lowerBound);
+        var upperBound = q3 + (1.5 * iqr);
+        System.out.println("job = " + dto.getJob() + " upperBound = " + upperBound);
+        List<Double> collect = values.stream()
+                .filter(val -> val >= lowerBound && val <= upperBound)
                 .peek(statistics::addValue)
                 .collect(toList());
+        System.out.println("job = " + dto.getJob() + " average = " + collect.stream().mapToDouble(Double::doubleValue).average());
 
         double median = statistics.getPercentile(50);
-        var range = median * generatorDto.getStepPercent()/100;
+        double step = median * generatorDto.getStepPercent() / 100;
 
-        List<List<Double>> lists = divideIntoRanges(collect, range);
+        List<List<Double>> lists = divideIntoRanges(collect, step);
 
         int maxList = max(lists, comparingInt(List::size)).size();
 
         List<Double> result = lists.stream()
-                .filter(list -> list.size() >= (maxList * generatorDto.getRangePercent())/100)
+                .filter(list -> list.size() >= (maxList * generatorDto.getRangePercent()) / 100)
                 .flatMap(Collection::stream)
                 .collect(toList());
 
@@ -71,7 +77,7 @@ public class Calculation {
 
         dto.setAverage(average);
         dto.setSize(result.size());
-        dto.setIqr(q3 - q1);
+        dto.setIqr(iqr);
     }
 
 
