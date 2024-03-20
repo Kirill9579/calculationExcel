@@ -129,7 +129,7 @@ public class ViewBuilder {
             excelGeneratorDto.setJobs(jobs.getText());
             excelGeneratorDto.setValue(value.getText());
             excelGeneratorDto.setSheetName(sheetName.getText());
-            ExcelGenerator.run(excelGeneratorDto);
+            ExcelWriter.run(excelGeneratorDto);
         });
         return button;
     }
