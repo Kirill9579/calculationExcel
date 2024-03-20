@@ -1,17 +1,15 @@
 package com.example.calculation.utils;
 
-import com.example.calculation.Main;
 import com.example.calculation.dto.DirectoryDto;
 import com.example.calculation.dto.ExcelGeneratorDto;
 import com.example.calculation.dto.ResultCalcDto;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.calculation.Main.*;
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.*;
@@ -54,14 +52,14 @@ public class Calculation {
 
         DescriptiveStatistics statistics = new DescriptiveStatistics();
         var lowerBound = q1 - (1.5 * iqr);
-        log.debug("job = " + dto.getJob() + " lowerBound = " + lowerBound);
+        System.out.println("job = " + dto.getJob() + " lowerBound = " + lowerBound);
         var upperBound = q3 + (1.5 * iqr);
-        log.debug("job = " + dto.getJob() + " upperBound = " + upperBound);
+        System.out.println("job = " + dto.getJob() + " upperBound = " + upperBound);
         List<Double> collect = values.stream()
                 .filter(val -> val >= lowerBound && val <= upperBound)
                 .peek(statistics::addValue)
                 .collect(toList());
-        log.debug("job = " + dto.getJob() + " average = " + collect.stream().mapToDouble(Double::doubleValue).average());
+        System.out.println("job = " + dto.getJob() + " average = " + collect.stream().mapToDouble(Double::doubleValue).average());
 
         double median = statistics.getPercentile(50);
         double step = median * generatorDto.getStepPercent() / 100;
