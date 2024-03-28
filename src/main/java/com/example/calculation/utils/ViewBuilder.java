@@ -18,7 +18,7 @@ import static javafx.stage.FileChooser.*;
 public class ViewBuilder {
     private final Stage stage;
     private final ExcelGeneratorDto excelGeneratorDto;
-    private final Label inputField = buildLabel("Выбери файл Сводки...", 10, 20);
+    private final Label inputField = buildLabel("Выбери файл...", 10, 20);
     private final Label outputField = buildLabel("Укажите папку для результата...", 10 , 50);
     private final TextField sheetName = buildTextField("Сводки (люди чел.час)", 255 , 80);
     private final TextField rangePercent = buildTextField("75", 255 , 110);
@@ -60,7 +60,7 @@ public class ViewBuilder {
         children.add(value);
 
 
-        children.add(buildButton("Начать!", 136, 540));
+        children.add(buildButton("Начать!", 136, 290));
 
 
     }

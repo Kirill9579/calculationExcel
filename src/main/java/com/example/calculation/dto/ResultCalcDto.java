@@ -6,6 +6,8 @@ public class ResultCalcDto {
     private double average;
     private int size;
     private double iqr;
+    private double value = 0.0;
+    private long countValue = 0;
 
     public ResultCalcDto(String company, String job) {
         this.company = company;
@@ -51,6 +53,24 @@ public class ResultCalcDto {
     public void setJob(String job) {
         this.job = job;
     }
+
+
+    public double getValue() {
+        return value;
+    }
+
+    public void setValue(double value) {
+        this.value = value;
+    }
+
+    public long getCountValue() {
+        return countValue;
+    }
+
+    public void setCountValue(long countValue) {
+        this.countValue = countValue;
+    }
+
     @Override
     public String toString() {
         return company + " " + job;

@@ -33,9 +33,9 @@ public class ExcelReader {
                             AtomicInteger count = new AtomicInteger(0);
                             long start = System.currentTimeMillis();
                             rows.skip(1).forEach(row -> {
-                                String companyName =  row.getCellRawValue(companyColumn).orElse("");
-                                String jobsName = row.getCellRawValue(jobsColumn).orElse("");
-                                String valueString = row.getCellRawValue(valueColumn).orElse("0.0");
+                                String companyName =  row.getCellRawValue(companyColumn).orElse("").trim();
+                                String jobsName = row.getCellRawValue(jobsColumn).orElse("").trim();
+                                String valueString = row.getCellRawValue(valueColumn).orElse("0.0").trim();
                                 Double value = Try.of(() -> Double.parseDouble(valueString)).getOrElse(Double.NaN);
 
                                 dtoList.add(new DirectoryDto(companyName, jobsName, value));

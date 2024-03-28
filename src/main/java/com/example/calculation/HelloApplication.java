@@ -11,7 +11,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage stage) {
         Group root = new Group();
-        Scene scene = new Scene(root, 350, 600);
+        Scene scene = new Scene(root, 350, 350);
 
         ViewBuilder viewBuilder = new ViewBuilder(stage);
         viewBuilder.buildView(root);

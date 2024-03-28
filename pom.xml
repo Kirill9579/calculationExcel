@@ -62,6 +62,19 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>java</directory>
+                <targetPath>${project.build.directory}/java</targetPath>
+            </resource>
+            <resource>
+                <directory>./target</directory>
+                <includes>
+                    <include>*.jar</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -110,6 +123,30 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>package_zip.xml</descriptor>
+                    </descriptors>
+                    <archiverConfig>
+                        <encoding>CP866</encoding>
+                    </archiverConfig>
+                    <outputDirectory>${session.executionRootDirectory}/target/</outputDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

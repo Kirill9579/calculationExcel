@@ -7,8 +7,13 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.max;
 import static java.util.Comparator.comparingInt;
@@ -64,7 +69,12 @@ public class Calculation {
         double median = statistics.getPercentile(50);
         double step = median * generatorDto.getStepPercent() / 100;
 
+        if (step == 0.0) {
+            return;
+        }
+
         List<List<Double>> lists = divideIntoRanges(collect, step);
+        lists.forEach(list -> System.out.println("job = " + dto.getJob() + " count = " + list.size()));
 
         int maxList = max(lists, comparingInt(List::size)).size();
 
@@ -73,7 +83,17 @@ public class Calculation {
                 .flatMap(Collection::stream)
                 .collect(toList());
 
+        result.stream()
+                .collect(groupingBy(Function.identity(), counting()))
+                .entrySet().stream().max(Map.Entry.comparingByValue())
+                .ifPresent(entry -> {
+                    dto.setValue(entry.getKey());
+                    dto.setCountValue(entry.getValue());
+                });
+
+
         double average = result.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+
 
         dto.setAverage(average);
         dto.setSize(result.size());
@@ -81,7 +101,7 @@ public class Calculation {
     }
 
 
-    public static List<List<Double>> divideIntoRanges(List<Double> values, double rangeStep) {
+    public static List<List<Double>> divideIntoRanges(List<Double> values, double step) {
         List<List<Double>> ranges = new ArrayList<>();
 
         // Рассчитываем минимальное и максимальное значение
@@ -89,14 +109,14 @@ public class Calculation {
         double maxValue = values.get(values.size() - 1);
 
         // Рассчитываем количество диапазонов
-        int numRanges = (int) Math.ceil((maxValue - minValue + 1) / rangeStep);
+        int numRanges = (int) Math.ceil((maxValue - minValue + 1) / step);
 
         // Создаем диапазоны
         for (int i = 0; i < numRanges; i++) {
-            double startValue = minValue + (i * rangeStep);
-            double endValue = startValue + rangeStep;
+            double startValue = minValue + (i * step);
+            double endValue = startValue + step;
 
-            List<Double> range = new ArrayList<>();
+            List<Double> range = new ArrayList<>(values.size());
             ranges.add(range);
 
             // Добавляем значения в диапазон
